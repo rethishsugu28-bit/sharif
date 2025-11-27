@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+<meta charset="UTF-8">
+<title>புலவர் சக்கர சவால் — Pulavar Spin Challenge</title>
+<style>
+    /* --- GLOBAL STYLES --- */
+    body {
+        text-align: center;
+        font-family: 'Arial Unicode MS', 'Inter', Arial, sans-serif;
+        background: linear-gradient(135deg, #f0f0f8, #e0e0e8);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h2 {
+        margin-bottom: 20px;
+        color: #6a0dad;
+        font-size: 2em;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    
+    /* --- WHEEL STYLES --- */
+    #wheel-container {
+        position: relative;
+    }
+    
+    #wheel {
+        /* Optimized size for visual balance and overlap prevention */
+        width: 420px; 
+        height: 420px; 
+        border-radius: 50%;
+        border: 10px solid #6a0dad;
+        margin: 20px auto;
+        position: relative;
+        overflow: hidden; 
+        transition: transform 6s cubic-bezier(0.25, 0.1, 0.25, 1);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.25), inset 0 0 15px rgba(255, 255, 255, 0.5);
+    }
+
+    /* 2. Slices (Backgrounds) */
+    .slice {
+        position: absolute;
+        width: 210px; 
+        height: 210px; 
+        top: 50%;
+        left: 50%;
+        transform-origin: 0% 0%; 
+        box-sizing: border-box;
+        z-index: 1; 
+        border-right: 1px solid rgba(0,0,0,0.05); 
+        border-bottom: 1px solid rgba(0,0,0,0.05); 
+    }
+
+    /* --- STRUCTURE FOR IMAGES (Rotation separate from slices) --- */
+    
+    /* Image Container: Rotates each image to its correct radial position */
+    .image-position-container {
+        position: absolute;
+        width: 50%; 
+        height: 50%; 
+        top: 50%;
+        left: 50%;
+        transform-origin: 0% 0%; 
+        z-index: 2; 
+    }
+
+    /* Actual Image Styling and Positioning */
+    .image-position-container img {
+        width: 75px; 
+        height: 75px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #fff;
+        box-shadow: 0 0 10px rgba(0,0,0,0.4);
+        
+        /* Final optimized translation values for radial placement and centering: */
+        transform: translate(85px, -37.5px); 
+        position: absolute; 
+        left: 0; 
+        top: 0; 
+    }
+
+
+    /* 4. Central Hub */
+    #center-hub {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        /* Increased size to cover any potential inner image overlap */
+        width: 60px; 
+        height: 60px; 
+        margin-left: -30px; 
+        margin-top: -30px; 
+        background: radial-gradient(#ffffff, #6a0dad);
+        border-radius: 50%;
+        border: 5px solid #fff;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.7), inset 0 0 10px #000;
+        z-index: 5; 
+    }
+
+    /* 5. Pointer */
+    #pointer {
+        width: 0;
+        height: 0;
+        border-left: 20px solid transparent; 
+        border-right: 20px solid transparent;
+        border-bottom: 35px solid #ff304f;
+        margin: 0 auto;
+        margin-bottom: -10px;
+        position: relative;
+        z-index: 10;
+        transform: translateY(5px);
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+    }
+    
+    /* --- CONTROL & RESULT STYLES --- */
+    #spinBtn {
+        padding: 18px 40px; 
+        font-size: 22px;
+        background: #ff304f;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: background 0.3s ease, transform 0.15s ease, box-shadow 0.3s ease;
+        margin-top: 40px;
+        font-weight: bold;
+        box-shadow: 0 8px 15px rgba(255, 48, 79, 0.5);
+        letter-spacing: 1px;
+    }
+
+    #spinBtn:hover {
+        background: #e62c45;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(255, 48, 79, 0.7);
+    }
+
+    #spinBtn:disabled {
+        background: #cccccc;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+    }
+
+    #result {
+        margin-top: 40px;
+        padding: 25px;
+        font-size: 1.1em;
+        width: 90%;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.8;
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        min-height: 100px; 
+        text-align: left;
+        border-left: 5px solid #6a0dad;
+    }
+
+    #result strong {
+        color: #ff304f;
+        font-size: 1.2em;
+        display: block;
+        margin-bottom: 5px;
+    }
+</style>
+</head>
+<body>
+
+<div id="pointer"></div>
+<h2>புலவர் சக்கர சவால் (Pulavar Spin Challenge)</h2>
+
+<div id="wheel-container">
+    <div id="wheel">
+        <div id="center-hub"></div>
+    </div>
+</div>
+
+<button id="spinBtn">சுழற்று! (Spin for Glory!)</button>
+
+<div id="result">சக்கரத்தை சுழற்றி ஒரு புகழ்பெற்ற புலவரைக் கண்டறியவும்! (Spin the wheel to discover a legendary Pulavar!)</div>
+
+<audio id="spinAudio" src="wheel_spin.mp3" preload="auto"></audio>
+<audio id="winAudio" src="win_chime.mp3" preload="auto"></audio>
+
+
+<script>
+// The pulavarImages array defines the image file name for each slice slot (Index 0 is the first slice, 1 the second, etc.)
+const pulavarImages = [
+    "1.jpg", 
+    "2.jpg", 
+    "3.jpg", 
+    "4.jpg", 
+    "5.jpg", 
+    "6.jpg", 
+    "7.jpg", 
+    "8.jpg"  
+];
+
+// *******************************************************************
+// *** CRITICAL CHANGE: pulavarInfo REORDERED based on your request ***
+// *******************************************************************
+
+/* MAPPING REQUESTED:
+Index 0 (for 1.jpg) -> நக்கீரர்
+Index 1 (for 2.jpg) -> வள்ளலார்
+Index 2 (for 3.jpg) -> கம்பர்
+Index 3 (for 4.jpg) -> ஔவையார்
+Index 4 (for 5.jpg) -> பாவேந்தர் பாரதிதாசன்
+Index 5 (for 6.jpg) -> அன்னைத் தமிழே
+Index 6 (for 7.jpg) -> மகாகவி பாரதியார்
+Index 7 (for 8.jpg) -> திருவள்ளுவர்
+*/
+const pulavarInfo = [
+    // Index 0 -> நக்கீரர் (Nakkirar)
+    "**நக்கீரர் (Nakkirar):** ⚔️ **சங்கத் தலைமை:** 'நெற்றிக்கண் திறப்பினும் குற்றம் குற்றமே' என்று சிவபெருமானுடன் வாதிட்ட துணிச்சல் மிக்க சங்கப் புலவர். இலக்கிய நேர்மைக்கு இலக்கணம்!",
+    
+    // Index 1 -> வள்ளலார் (Ramalinga Swamigal)
+    "**வள்ளலார் (Ramalinga Swamigal):** 🕊️ **சமரச சுத்த சன்மார்க்கம்:** ஜீவகாருண்யத்தை போதித்த சித்தர் மற்றும் ஞானி. இவரின் **திருவருட்பா** மனித குல ஒருமைப்பாட்டையும், அன்பையும் வலியுறுத்துகிறது.",
+    
+    // Index 2 -> கம்பர் (Kambar)
+    "**கம்பர் (Kambar):** 👉 **இலக்கிய இமயம்:** இவரின் காலத்தால் அழியாத படைப்பான **கம்பராமாயணம்**, தமிழ் இலக்கியத்தின் பொற்காலத்தை நிர்ணயித்த காவியமாகும். ஒரு தீர்க்கதரிசியின் வீரம்!",
+    
+    // Index 3 -> ஔவையார் (Avvaiyar)
+    "**ஔவையார் (Avvaiyar):** 👵 **நீதிச் சுடர்:** குழந்தைகளுக்கு நன்னெறியைக் கற்றுத்தந்த ஆசான். இவரின் **ஆத்திசூடி** மற்றும் **கொன்றைவேந்தன்** ஆகியவை தலைமுறை கடந்து வழிகாட்டும் தர்மக் கதவு.",
+    
+    // Index 4 -> பாவேந்தர் பாரதிதாசன் (Bharathidasan)
+    "**பாவேந்தர் பாரதிதாசன் (Bharathidasan):** 🎨 **புரட்சிக் கவி:** 'தமிழுக்கு அமுதென்று பேர்' என்று முழங்கிய இவர், திராவிட இயக்கத்தின் கருத்துக் கருவூலம். பெண் கல்வி மற்றும் பகுத்தறிவை வலியுறுத்திய புரட்சிக் குரல்.",
+    
+    // Index 5 -> அன்னைத் தமிழே (Tamil Thai)
+    "**அன்னைத் தமிழே (Tamil Thai):** 🔱 **மொழி வடிவம்:** ஐம்பெருங் காப்பியங்களைத் தாங்கி நிற்கும் தமிழ் மொழியின் அன்னை வடிவம். நம் கலாச்சாரம், கலை, மற்றும் வரலாற்றின் நீங்காத் தொடர்ச்சி.",
+    
+    // Index 6 -> மகாகவி பாரதியார் (Subramania Bharati)
+    "**மகாகவி பாரதியார் (Subramania Bharati):** 🔥 **புரட்சிக் கவிஞன்:** பெண்ணுரிமை, தேசிய விடுதலை, சமூக நீதி எனப் பல முனைகளில் தனது கவிதைகளை ஆயுதமாக்கிய பெருங்கவி. இவரின் **ரௌத்திரம்** தமிழ் தேசத்தின் எழுச்சி!",
+    
+    // Index 7 -> திருவள்ளுவர் (Thiruvalluvar)
+    "**திருவள்ளுவர் (Thiruvalluvar):** 📜 **உலகப் பொதுமறை தந்தவர்:** இரண்டே அடிகளில் அறம், பொருள், இன்பம் ஆகிய வாழ்வியல் நெறிகளை வகுத்த **திருக்குறள்** எனும் மனிதநேய சாசனம் இவரால் படைக்கப்பட்டது।"
+];
+
+
+const sliceColors = [
+    '#FF7F50', // Index 0
+    '#9ACD32', // Index 1
+    '#4682B4', // Index 2
+    '#DA70D6', // Index 3
+    '#FFD700', // Index 4
+    '#20B2AA', // Index 5
+    '#FF6347', // Index 6
+    '#7B68EE'  // Index 7
+];
+
+const wheel = document.getElementById("wheel");
+const spinAudio = document.getElementById("spinAudio");
+const winAudio = document.getElementById("winAudio");
+const total = pulavarImages.length; 
+const sliceAngle = 360 / total; 
+
+// 1. Draw Slices (Backgrounds)
+for (let i = 0; i < total; i++) {
+    const slice = document.createElement("div");
+    slice.className = "slice";
+    
+    const rotation = sliceAngle * i;
+    
+    slice.style.backgroundColor = sliceColors[i];
+    slice.style.transform = `rotate(${rotation}deg)`;
+    
+    wheel.appendChild(slice);
+}
+
+// 2. Draw Image Containers (Rotated Positions)
+for (let i = 0; i < total; i++) {
+    const imgContainer = document.createElement("div");
+    imgContainer.className = "image-position-container";
+    
+    const rotation = sliceAngle * i;
+    imgContainer.style.transform = `rotate(${rotation}deg)`;
+    
+    const img = document.createElement("img");
+    img.src = pulavarImages[i];
+    img.alt = pulavarInfo[i].split(':')[0].replace('**', '');
+    
+    imgContainer.appendChild(img);
+    wheel.appendChild(imgContainer);
+}
+
+
+// Spin logic
+let currentAngle = 0;
+
+document.getElementById("spinBtn").onclick = function () {
+    this.disabled = true;
+    
+    if(spinAudio) {
+        spinAudio.currentTime = 0;
+        spinAudio.play();
+    }
+
+    const randomSpin = 4320 + Math.floor(Math.random() * 720); 
+    currentAngle += randomSpin;
+    
+    // Apply rotation to the main wheel container (slices and images rotate together)
+    wheel.style.transform = `rotate(${currentAngle}deg)`;
+
+    setTimeout(() => {
+        if(spinAudio) spinAudio.pause();
+        if(winAudio) {
+             winAudio.currentTime = 0;
+             winAudio.play();
+        }
+
+        const finalAngle = ((currentAngle % 360) + 360) % 360;
+        // Calculation to determine which slice the pointer is on
+        const normalizedAngle = (360 - finalAngle + (sliceAngle / 2)) % 360; 
+        const index = Math.floor(normalizedAngle / sliceAngle) % total;
+
+        document.getElementById("result").innerHTML = pulavarInfo[index];
+        document.getElementById("spinBtn").disabled = false;
+    }, 6000); 
+};
+
+document.getElementById("result").innerHTML = "சக்கரத்தை சுழற்றி ஒரு புகழ்பெற்ற புலவரைக் கண்டறியவும்! (Spin the wheel to discover a legendary Pulavar!)";
+</script>
+
+</body>
+</html>
